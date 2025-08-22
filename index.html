@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatShouldIWatch.ai - Never Waste Time on Bad Shows Again</title>
+    <meta name="description" content="Get instant AI-powered show recommendations based on your mood and available time. Stop scrolling, start watching!">
+    <meta name="keywords" content="movie recommendations, TV show recommendations, what to watch, Netflix, AI recommendations">
+    
+    <!-- Open Graph tags for social sharing -->
+    <meta property="og:title" content="WhatShouldIWatch.ai - Never Waste Time on Bad Shows Again">
+    <meta property="og:description" content="Get instant AI-powered show recommendations based on your mood and available time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://whatshouldiwatch-ai.vercel.app">
+    <meta property="og:image" content="https://whatshouldiwatch-ai.vercel.app/og-image.jpg">
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WhatShouldIWatch.ai">
+    <meta name="twitter:description" content="Get instant AI-powered show recommendations based on your mood and available time.">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B5CF6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WhatShouldIWatch.ai">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='20' fill='%238B5CF6'/><text x='96' y='120' font-size='80' text-anchor='middle' fill='white'>🎬</text></svg>">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'netflix': '#E50914',
+                        'prime': '#00A8E1',
+                        'disney': '#113CCF',
+                        'hulu': '#1CE783',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-inter bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-black/20 backdrop-blur-lg border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                            🎬 WhatShouldIWatch.ai
+                        </h1>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition-all">Home</a>
+                        <a href="#trending" class="hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition-all">Trending</a>
+                        <a href="#about" class="hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium transition-all">About</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="mobile-menu-btn text-white hover:text-gray-300">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden md:hidden bg-black/30 backdrop-blur-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 text-base font-medium hover:bg-white/10 rounded-md">Home</a>
+                <a href="#trending" class="block px-3 py-2 text-base font-medium hover:bg-white/10 rounded-md">Trending</a>
+                <a href="#about" class="block px-3 py-2 text-base font-medium hover:bg-white/10 rounded-md">About</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        <!-- Hero Section -->
+        <section id="home" class="min-h-screen flex items-center justify-center px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <!-- Stats Bar -->
+                <div class="mb-8 flex flex-wrap justify-center gap-4 md:gap-8">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20">
+                        <div class="text-lg font-bold text-purple-300" id="totalRecommendations">2,347,652</div>
+                        <div class="text-xs text-gray-300">Recommendations Served</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20">
+                        <div class="text-lg font-bold text-green-300">28 sec</div>
+                        <div class="text-xs text-gray-300">Average Decision Time</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-lg rounded-lg px-4 py-2 border border-white/20">
+                        <div class="text-lg font-bold text-blue-300">97%</div>
+                        <div class="text-xs text-gray-300">Satisfaction Rate</div>
+                    </div>
+                </div>
+
+                <!-- Main Headline -->
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent leading-tight">
+                    Never Waste Time Scrolling Again
+                </h1>
+                
+                <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
+                    Get perfect show recommendations in <span class="text-purple-400 font-semibold">30 seconds</span> based on your mood and available time
+                </p>
+
+                <!-- Mood Selection -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-semibold mb-6 text-center">What's your mood right now?</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                        <button class="mood-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:border-yellow-400/50" data-mood="happy">
+                            <div class="text-4xl mb-3 group-hover:animate-bounce">😊</div>
+                            <div class="font-semibold text-lg">Happy</div>
+                            <div class="text-sm text-gray-400">Upbeat & Fun</div>
+                        </button>
+                        
+                        <button class="mood-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:border-blue-400/50" data-mood="chill">
+                            <div class="text-4xl mb-3 group-hover:animate-bounce">😴</div>
+                            <div class="font-semibold text-lg">Chill</div>
+                            <div class="text-sm text-gray-400">Relaxed & Easy</div>
+                        </button>
+                        
+                        <button class="mood-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:border-red-400/50" data-mood="focused">
+                            <div class="text-4xl mb-3 group-hover:animate-bounce">🤔</div>
+                            <div class="font-semibold text-lg">Focused</div>
+                            <div class="text-sm text-gray-400">Engaged & Alert</div>
+                        </button>
+                        
+                        <button class="mood-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-6 hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:border-purple-400/50" data-mood="emotional">
+                            <div class="text-4xl mb-3 group-hover:animate-bounce">😢</div>
+                            <div class="font-semibold text-lg">Emotional</div>
+                            <div class="text-sm text-gray-400">Deep & Meaningful</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Time Selection (Hidden initially) -->
+                <div id="timeSelection" class="mb-8 hidden">
+                    <h2 class="text-2xl font-semibold mb-6 text-center">How much time do you have?</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                        <button class="time-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-300" data-time="quick">
+                            <div class="text-3xl mb-2">⚡</div>
+                            <div class="font-semibold">Quick</div>
+                            <div class="text-sm text-gray-400">Under 45 mins</div>
+                        </button>
+                        
+                        <button class="time-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-300" data-time="movie">
+                            <div class="text-3xl mb-2">🍿</div>
+                            <div class="font-semibold">Movie Night</div>
+                            <div class="text-sm text-gray-400">1.5-3 hours</div>
+                        </button>
+                        
+                        <button class="time-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-300" data-time="binge">
+                            <div class="text-3xl mb-2">📺</div>
+                            <div class="font-semibold">Binge</div>
+                            <div class="text-sm text-gray-400">3+ hours</div>
+                        </button>
+                        
+                        <button class="time-btn group bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-4 hover:bg-white/20 hover:scale-105 transition-all duration-300" data-time="episode">
+                            <div class="text-3xl mb-2">🎯</div>
+                            <div class="font-semibold">One Episode</div>
+                            <div class="text-sm text-gray-400">Try something new</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI Thinking Animation (Hidden initially) -->
+                <div id="aiThinking" class="hidden mb-8">
+                    <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-md mx-auto">
+                        <div class="flex items-center justify-center mb-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+                        </div>
+                        <div class="text-lg font-semibold mb-2">AI is analyzing...</div>
+                        <div class="text-sm text-gray-400" id="thinkingText">Processing your preferences</div>
+                    </div>
+                </div>
+
+                <!-- Recommendations (Hidden initially) -->
+                <div id="recommendations" class="hidden">
+                    <h2 class="text-3xl font-bold mb-8 text-center">Perfect Matches for You</h2>
+                    <div id="recommendationCards" class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        <!-- Recommendation cards will be inserted here -->
+                    </div>
+                    <div class="mt-8 flex flex-wrap justify-center gap-4">
+                        <button id="shareRecommendations" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-share-alt mr-2"></i>Share My Picks
+                        </button>
+                        <button id="getNewRecommendations" class="bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/20 px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                            <i class="fas fa-refresh mr-2"></i>Try Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Section -->
+        <section id="trending" class="py-20 px-4 bg-black/20">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-4xl font-bold text-center mb-12">What Everyone's Watching</h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="trending-item bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="text-2xl mr-3">🔥</div>
+                            <div>
+                                <div class="font-semibold">This Week's #1</div>
+                                <div class="text-green-400 text-sm">↑ 234% increase</div>
+                            </div>
+                        </div>
+                        <div class="text-lg font-semibold mb-2">The Bear (Season 3)</div>
+                        <div class="text-sm text-gray-400">Everyone's obsessing over this kitchen chaos</div>
+                    </div>
+                    
+                    <div class="trending-item bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="text-2xl mr-3">💎</div>
+                            <div>
+                                <div class="font-semibold">Hidden Gem</div>
+                                <div class="text-blue-400 text-sm">↑ 156% increase</div>
+                            </div>
+                        </div>
+                        <div class="text-lg font-semibold mb-2">Dark Matter</div>
+                        <div class="text-sm text-gray-400">Mind-bending sci-fi that's breaking the internet</div>
+                    </div>
+                    
+                    <div class="trending-item bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="text-2xl mr-3">⏰</div>
+                            <div>
+                                <div class="font-semibold">Leaving Soon</div>
+                                <div class="text-red-400 text-sm">Watch by Aug 30</div>
+                            </div>
+                        </div>
+                        <div class="text-lg font-semibold mb-2">Breaking Bad</div>
+                        <div class="text-sm text-gray-400">Last chance to watch this masterpiece</div>
+                    </div>
+                    
+                    <div class="trending-item bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="text-2xl mr-3">🌟</div>
+                            <div>
+                                <div class="font-semibold">Perfect Rating</div>
+                                <div class="text-yellow-400 text-sm">100% on RT</div>
+                            </div>
+                        </div>
+                        <div class="text-lg font-semibold mb-2">Shogun</div>
+                        <div class="text-sm text-gray-400">Historical drama that's winning everything</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl font-bold mb-8">Why WhatShouldIWatch.ai?</h2>
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div class="feature-card bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                        <div class="text-4xl mb-4">🎯</div>
+                        <h3 class="text-xl font-semibold mb-3">Instant Results</h3>
+                        <p class="text-gray-400">Get perfect recommendations in under 30 seconds. No more endless scrolling.</p>
+                    </div>
+                    <div class="feature-card bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                        <div class="text-4xl mb-4">🧠</div>
+                        <h3 class="text-xl font-semibold mb-3">AI-Powered</h3>
+                        <p class="text-gray-400">Advanced algorithms that understand your mood and preferences perfectly.</p>
+                    </div>
+                    <div class="feature-card bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                        <div class="text-4xl mb-4">🚀</div>
+                        <h3 class="text-xl font-semibold mb-3">Zero Effort</h3>
+                        <p class="text-gray-400">No signups, no forms. Just 2 clicks and you're watching something amazing.</p>
+                    </div>
+                </div>
+                <div class="text-lg text-gray-300">
+                    <p class="mb-4">
+                        We solve the biggest problem in streaming: <strong class="text-white">choice paralysis</strong>. 
+                        The average person spends 18 minutes browsing before choosing what to watch.
+                    </p>
+                    <p>
+                        Our AI cuts that down to 28 seconds by understanding exactly what you want to watch right now.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/30 border-t border-white/10 py-8 px-4">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                🎬 WhatShouldIWatch.ai
+            </div>
+            <p class="text-gray-400 mb-4">Never Waste Time on Bad Shows Again</p>
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-twitter text-xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-facebook text-xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-instagram text-xl"></i>
+                </a>
+            </div>
+            <p class="text-sm text-gray-500">© 2024 WhatShouldIWatch.ai. Made with ❤️ for fellow binge-watchers.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

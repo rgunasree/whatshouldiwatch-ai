@@ -1,0 +1,334 @@
+/* Custom CSS for WhatShouldIWatch.ai */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(168, 85, 247, 0.8);
+    }
+}
+
+@keyframes gradient-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Floating animation for emojis */
+.mood-btn:hover .text-4xl,
+.time-btn:hover .text-3xl {
+    animation: float 2s ease-in-out infinite;
+}
+
+/* Glassmorphism effect enhancement */
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+}
+
+/* Recommendation card hover effects */
+.recommendation-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Platform badges */
+.platform-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+
+.platform-netflix {
+    background-color: #E50914;
+    color: white;
+}
+
+.platform-prime {
+    background-color: #00A8E1;
+    color: white;
+}
+
+.platform-disney {
+    background-color: #113CCF;
+    color: white;
+}
+
+.platform-hulu {
+    background-color: #1CE783;
+    color: black;
+}
+
+.platform-apple {
+    background-color: #000000;
+    color: white;
+}
+
+.platform-hbo {
+    background-color: #8B5CF6;
+    color: white;
+}
+
+/* Stats counter animation */
+.stat-counter {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Mobile menu animation */
+.mobile-menu {
+    transition: all 0.3s ease;
+}
+
+.mobile-menu.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading states */
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(5, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% {
+        color: rgba(255, 255, 255, 0);
+        text-shadow: 0.25em 0 0 rgba(255, 255, 255, 0),
+                     0.5em 0 0 rgba(255, 255, 255, 0);
+    }
+    40% {
+        color: white;
+        text-shadow: 0.25em 0 0 rgba(255, 255, 255, 0),
+                     0.5em 0 0 rgba(255, 255, 255, 0);
+    }
+    60% {
+        text-shadow: 0.25em 0 0 white,
+                     0.5em 0 0 rgba(255, 255, 255, 0);
+    }
+    80%, 100% {
+        text-shadow: 0.25em 0 0 white,
+                     0.5em 0 0 white;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+button, a, .mood-btn, .time-btn, .trending-item, .feature-card {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced button hover states */
+button:hover {
+    transform: translateY(-2px);
+}
+
+/* Trending cards animation on scroll */
+.trending-item {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.trending-item:nth-child(1) { animation-delay: 0.1s; }
+.trending-item:nth-child(2) { animation-delay: 0.2s; }
+.trending-item:nth-child(3) { animation-delay: 0.3s; }
+.trending-item:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Feature cards animation */
+.feature-card {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.2s; }
+.feature-card:nth-child(2) { animation-delay: 0.4s; }
+.feature-card:nth-child(3) { animation-delay: 0.6s; }
+
+/* AI thinking animation enhancement */
+#aiThinking {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Recommendation reveal animation */
+.recommendation-reveal {
+    opacity: 0;
+    transform: scale(0.8) translateY(30px);
+    animation: revealRecommendation 0.6s ease forwards;
+}
+
+.recommendation-reveal:nth-child(1) { animation-delay: 0.1s; }
+.recommendation-reveal:nth-child(2) { animation-delay: 0.3s; }
+.recommendation-reveal:nth-child(3) { animation-delay: 0.5s; }
+
+@keyframes revealRecommendation {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Share button special effect */
+#shareRecommendations {
+    position: relative;
+    overflow: hidden;
+}
+
+#shareRecommendations:hover {
+    animation: pulse-glow 2s infinite;
+}
+
+#shareRecommendations::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.5s;
+    opacity: 0;
+}
+
+#shareRecommendations:hover::before {
+    animation: shine 0.5s ease-in-out;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .mood-btn, .time-btn {
+        padding: 1rem;
+    }
+    
+    .mood-btn .text-4xl {
+        font-size: 2rem;
+    }
+    
+    .time-btn .text-3xl {
+        font-size: 1.5rem;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #8B5CF6, #EC4899);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #7C3AED, #DB2777);
+}
+
+/* Selection color */
+::selection {
+    background: rgba(139, 92, 246, 0.3);
+    color: white;
+}
+
+/* Focus states for accessibility */
+button:focus,
+a:focus {
+    outline: 2px solid #8B5CF6;
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .fixed, nav, footer {
+        display: none;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
