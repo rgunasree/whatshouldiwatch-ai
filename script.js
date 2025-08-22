@@ -36,7 +36,89 @@ const StatsManager = {
     }
 };
 
-// TMDB API Functions
+// OMDb API Functions (Primary)
+const OMDbApi = {
+    async searchMovie(title) {
+        if (CONFIG.OMDB_API_KEY === 'YOUR_OMDB_API_KEY_HERE') {
+            console.warn('OMDb API key not configured, using fallback data');
+            return null;
+        }
+        
+        try {
+            const response = await fetch(
+                `${CONFIG.OMDB_BASE_URL}/?apikey=${CONFIG.OMDB_API_KEY}&t=${encodeURIComponent(title)}&plot=short`
+            );
+            const data = await response.json();
+            
+            if (data.Response === 'True') {
+                return data;
+            }
+            console.warn('OMDb API returned no results for:', title);
+            return null;
+        } catch (error) {
+            console.error('Error fetching from OMDb:', error);
+            return null;
+        }
+    },
+    
+    async enhanceShowData(show) {
+        const omdbData = await this.searchMovie(show.title);
+        if (omdbData) {
+            return {
+                ...show,
+                image: omdbData.Poster && omdbData.Poster !== 'N/A' ? omdbData.Poster : CONFIG.FALLBACK_IMAGE,
+                rating: omdbData.imdbRating && omdbData.imdbRating !== 'N/A' ? omdbData.imdbRating : show.rating,
+                year: omdbData.Year ? omdbData.Year : show.year,
+                description: omdbData.Plot && omdbData.Plot !== 'N/A' ? omdbData.Plot : show.description,
+                // Additional OMDb data
+                genre: omdbData.Genre,
+                director: omdbData.Director,
+                actors: omdbData.Actors,
+                runtime: omdbData.Runtime,
+                boxOffice: omdbData.BoxOffice,
+                awards: omdbData.Awards
+            };
+        }
+        return show;
+    }
+};
+
+// TVMaze API Functions (No key needed!)
+const TVMazeApi = {
+    async searchShow(title) {
+        try {
+            const response = await fetch(
+                `${CONFIG.TVMAZE_BASE_URL}/search/shows?q=${encodeURIComponent(title)}`
+            );
+            const data = await response.json();
+            return data[0]?.show || null;
+        } catch (error) {
+            console.error('Error fetching from TVMaze:', error);
+            return null;
+        }
+    },
+    
+    async enhanceShowData(show) {
+        const tvmazeData = await this.searchShow(show.title);
+        if (tvmazeData) {
+            return {
+                ...show,
+                image: tvmazeData.image?.medium || CONFIG.FALLBACK_IMAGE,
+                rating: tvmazeData.rating?.average ? tvmazeData.rating.average.toFixed(1) : show.rating,
+                year: tvmazeData.premiered ? new Date(tvmazeData.premiered).getFullYear() : show.year,
+                description: tvmazeData.summary ? tvmazeData.summary.replace(/<[^>]*>/g, '') : show.description,
+                // Additional TVMaze data
+                genres: tvmazeData.genres,
+                network: tvmazeData.network?.name,
+                status: tvmazeData.status,
+                episodes: tvmazeData.episodes
+            };
+        }
+        return show;
+    }
+};
+
+// TMDB API Functions (Original - kept as fallback)
 const TMDBApi = {
     async searchMovie(title) {
         if (CONFIG.TMDB_API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
@@ -71,6 +153,30 @@ const TMDBApi = {
                 description: tmdbData.overview || show.description
             };
         }
+        return show;
+    }
+};
+
+// Master API function that tries multiple sources
+const MovieAPI = {
+    async enhanceShowData(show) {
+        // Try OMDb first (for movies)
+        if (show.type === 'Movie' || show.type === 'TV Episode') {
+            const omdbResult = await OMDbApi.enhanceShowData(show);
+            if (omdbResult !== show) return omdbResult;
+        }
+        
+        // Try TVMaze for TV shows
+        if (show.type === 'TV Series' || show.type === 'TV Episode') {
+            const tvmazeResult = await TVMazeApi.enhanceShowData(show);
+            if (tvmazeResult !== show) return tvmazeResult;
+        }
+        
+        // Fallback to TMDB
+        const tmdbResult = await TMDBApi.enhanceShowData(show);
+        if (tmdbResult !== show) return tmdbResult;
+        
+        // Return original show if all APIs fail
         return show;
     }
 };
@@ -672,7 +778,7 @@ function generateRecommendations() {
 }
 
 // Show recommendations
-function showRecommendations() {
+async function showRecommendations() {
     const aiThinking = document.getElementById('aiThinking');
     const recommendations = document.getElementById('recommendations');
     const recommendationCards = document.getElementById('recommendationCards');
@@ -683,13 +789,27 @@ function showRecommendations() {
         aiThinking.classList.add('hidden');
     }, 300);
     
-    // Generate recommendations
-    currentRecommendations = generateRecommendations();
+    // Generate base recommendations
+    const baseRecommendations = generateRecommendations();
+    
+    // Enhance recommendations with live API data
+    const enhancedRecommendations = [];
+    for (const show of baseRecommendations) {
+        try {
+            const enhancedShow = await MovieAPI.enhanceShowData(show);
+            enhancedRecommendations.push(enhancedShow);
+        } catch (error) {
+            console.warn('Failed to enhance show data for:', show.title, error);
+            enhancedRecommendations.push(show); // Use original data as fallback
+        }
+    }
+    
+    currentRecommendations = enhancedRecommendations;
     
     // Clear previous cards
     recommendationCards.innerHTML = '';
     
-    // Create recommendation cards
+    // Create recommendation cards with enhanced data
     currentRecommendations.forEach((show, index) => {
         const card = createRecommendationCard(show, index);
         recommendationCards.appendChild(card);
