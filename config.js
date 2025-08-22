@@ -4,7 +4,7 @@
 const CONFIG = {
     // OMDb API Configuration (Alternative to TMDB)
     // Get your free API key from: http://www.omdbapi.com/apikey.aspx
-    OMDB_API_KEY: 'YOUR_OMDB_API_KEY_HERE', // Replace with your actual API key
+    OMDB_API_KEY: 'b83b1a77', // Free API key with 1000 requests/day
     OMDB_BASE_URL: 'https://www.omdbapi.com',
     
     // TVMaze API (No key required!)

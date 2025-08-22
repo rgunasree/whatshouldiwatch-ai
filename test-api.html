@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - WhatShouldIWatch.ai</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background: #111; 
+            color: #fff;
+        }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border: 1px solid #333; 
+            border-radius: 8px;
+            background: #222;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .pending { color: #ff9800; }
+        button {
+            background: #6B5B95;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #5a4b7c; }
+        pre { 
+            background: #333; 
+            padding: 10px; 
+            border-radius: 5px; 
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 WhatShouldIWatch.ai API Testing</h1>
+    
+    <div class="test-section">
+        <h2>OMDb API Test</h2>
+        <p>Testing the OMDb API with "Guardians of the Galaxy Vol. 2"</p>
+        <button onclick="testOMDbAPI()">Test OMDb API</button>
+        <div id="omdb-result" class="pending">Click to test...</div>
+        <pre id="omdb-data" style="display: none;"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>TVMaze API Test</h2>
+        <p>Testing the TVMaze API with "The Good Place"</p>
+        <button onclick="testTVMazeAPI()">Test TVMaze API</button>
+        <div id="tvmaze-result" class="pending">Click to test...</div>
+        <pre id="tvmaze-data" style="display: none;"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Quote API Test</h2>
+        <p>Testing the Random Quote API</p>
+        <button onclick="testQuoteAPI()">Test Quote API</button>
+        <div id="quote-result" class="pending">Click to test...</div>
+        <pre id="quote-data" style="display: none;"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Full Integration Test</h2>
+        <p>Test all APIs together and recommendation enhancement</p>
+        <button onclick="testFullIntegration()">Run Full Test</button>
+        <div id="full-result" class="pending">Click to test...</div>
+        <pre id="full-data" style="display: none;"></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Live App Test</h2>
+        <p>Test the actual recommendation flow</p>
+        <button onclick="testRecommendationFlow()">Test Recommendation Flow</button>
+        <div id="flow-result" class="pending">Click to test...</div>
+        <pre id="flow-data" style="display: none;"></pre>
+    </div>
+
+    <script>
+        // OMDb API Test
+        async function testOMDbAPI() {
+            const resultDiv = document.getElementById('omdb-result');
+            const dataDiv = document.getElementById('omdb-data');
+            
+            resultDiv.textContent = 'Testing OMDb API...';
+            resultDiv.className = 'pending';
+            
+            try {
+                const apiKey = 'b83b1a77';
+                const response = await fetch(`https://www.omdbapi.com/?apikey=${apiKey}&t=Guardians of the Galaxy Vol. 2&plot=full`);
+                const data = await response.json();
+                
+                if (data.Response === 'True') {
+                    resultDiv.textContent = '✅ OMDb API: SUCCESS - Movie data retrieved!';
+                    resultDiv.className = 'success';
+                    dataDiv.style.display = 'block';
+                    dataDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.textContent = '❌ OMDb API: FAILED - ' + (data.Error || 'Unknown error');
+                    resultDiv.className = 'error';
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ OMDb API: ERROR - ' + error.message;
+                resultDiv.className = 'error';
+                console.error('OMDb API error:', error);
+            }
+        }
+
+        // TVMaze API Test
+        async function testTVMazeAPI() {
+            const resultDiv = document.getElementById('tvmaze-result');
+            const dataDiv = document.getElementById('tvmaze-data');
+            
+            resultDiv.textContent = 'Testing TVMaze API...';
+            resultDiv.className = 'pending';
+            
+            try {
+                const response = await fetch('https://api.tvmaze.com/search/shows?q=The Good Place');
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    resultDiv.textContent = '✅ TVMaze API: SUCCESS - TV show data retrieved!';
+                    resultDiv.className = 'success';
+                    dataDiv.style.display = 'block';
+                    dataDiv.textContent = JSON.stringify(data[0], null, 2);
+                } else {
+                    resultDiv.textContent = '❌ TVMaze API: FAILED - No results found';
+                    resultDiv.className = 'error';
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ TVMaze API: ERROR - ' + error.message;
+                resultDiv.className = 'error';
+                console.error('TVMaze API error:', error);
+            }
+        }
+
+        // Quote API Test
+        async function testQuoteAPI() {
+            const resultDiv = document.getElementById('quote-result');
+            const dataDiv = document.getElementById('quote-data');
+            
+            resultDiv.textContent = 'Testing Quote API...';
+            resultDiv.className = 'pending';
+            
+            try {
+                const response = await fetch('https://api.quotable.io/random');
+                const data = await response.json();
+                
+                if (data && data.content) {
+                    resultDiv.textContent = '✅ Quote API: SUCCESS - Quote retrieved!';
+                    resultDiv.className = 'success';
+                    dataDiv.style.display = 'block';
+                    dataDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.textContent = '❌ Quote API: FAILED - No quote found';
+                    resultDiv.className = 'error';
+                }
+            } catch (error) {
+                resultDiv.textContent = '❌ Quote API: ERROR - ' + error.message;
+                resultDiv.className = 'error';
+                console.error('Quote API error:', error);
+            }
+        }
+
+        // Full Integration Test
+        async function testFullIntegration() {
+            const resultDiv = document.getElementById('full-result');
+            const dataDiv = document.getElementById('full-data');
+            
+            resultDiv.textContent = 'Testing full integration...';
+            resultDiv.className = 'pending';
+            
+            try {
+                const results = {};
+                
+                // Test OMDb
+                const omdbResponse = await fetch('https://www.omdbapi.com/?apikey=b83b1a77&t=Guardians of the Galaxy Vol. 2');
+                const omdbData = await omdbResponse.json();
+                results.omdb = omdbData.Response === 'True' ? 'SUCCESS' : 'FAILED';
+                
+                // Test TVMaze
+                const tvmazeResponse = await fetch('https://api.tvmaze.com/search/shows?q=The Good Place');
+                const tvmazeData = await tvmazeResponse.json();
+                results.tvmaze = (tvmazeData && tvmazeData.length > 0) ? 'SUCCESS' : 'FAILED';
+                
+                // Test Quote API
+                const quoteResponse = await fetch('https://api.quotable.io/random');
+                const quoteData = await quoteResponse.json();
+                results.quote = (quoteData && quoteData.content) ? 'SUCCESS' : 'FAILED';
+                
+                // Create enhanced recommendation
+                const testShow = {
+                    title: "Guardians of the Galaxy Vol. 2",
+                    type: "Movie",
+                    description: "Test movie for API integration"
+                };
+                
+                if (omdbData.Response === 'True') {
+                    testShow.enhancedData = {
+                        poster: omdbData.Poster,
+                        rating: omdbData.imdbRating,
+                        plot: omdbData.Plot,
+                        director: omdbData.Director,
+                        actors: omdbData.Actors
+                    };
+                }
+                
+                results.enhancement = testShow.enhancedData ? 'SUCCESS' : 'PARTIAL';
+                
+                const successCount = Object.values(results).filter(r => r === 'SUCCESS').length;
+                const totalTests = Object.keys(results).length;
+                
+                if (successCount === totalTests) {
+                    resultDiv.textContent = `✅ Full Integration: SUCCESS (${successCount}/${totalTests} APIs working)`;
+                    resultDiv.className = 'success';
+                } else if (successCount > 0) {
+                    resultDiv.textContent = `⚠️ Partial Integration: ${successCount}/${totalTests} APIs working`;
+                    resultDiv.className = 'pending';
+                } else {
+                    resultDiv.textContent = `❌ Full Integration: FAILED (0/${totalTests} APIs working)`;
+                    resultDiv.className = 'error';
+                }
+                
+                dataDiv.style.display = 'block';
+                dataDiv.textContent = JSON.stringify({ results, testShow }, null, 2);
+                
+            } catch (error) {
+                resultDiv.textContent = '❌ Full Integration: ERROR - ' + error.message;
+                resultDiv.className = 'error';
+                console.error('Full integration error:', error);
+            }
+        }
+
+        // Test Recommendation Flow
+        async function testRecommendationFlow() {
+            const resultDiv = document.getElementById('flow-result');
+            const dataDiv = document.getElementById('flow-data');
+            
+            resultDiv.textContent = 'Testing recommendation flow...';
+            resultDiv.className = 'pending';
+            
+            try {
+                // Simulate the recommendation process
+                const testMood = 'happy';
+                const testTime = 'movie';
+                
+                // Mock database (simplified version)
+                const mockDatabase = {
+                    happy: {
+                        movie: [{
+                            title: "Guardians of the Galaxy Vol. 2",
+                            type: "Movie",
+                            description: "Action-packed superhero adventure"
+                        }]
+                    }
+                };
+                
+                // Get base recommendation
+                const baseRecommendation = mockDatabase[testMood][testTime][0];
+                
+                // Enhance with API data
+                const omdbResponse = await fetch(`https://www.omdbapi.com/?apikey=b83b1a77&t=${encodeURIComponent(baseRecommendation.title)}`);
+                const omdbData = await omdbResponse.json();
+                
+                if (omdbData.Response === 'True') {
+                    const enhancedRecommendation = {
+                        ...baseRecommendation,
+                        poster: omdbData.Poster,
+                        rating: omdbData.imdbRating,
+                        plot: omdbData.Plot,
+                        director: omdbData.Director,
+                        actors: omdbData.Actors,
+                        year: omdbData.Year,
+                        runtime: omdbData.Runtime
+                    };
+                    
+                    resultDiv.textContent = '✅ Recommendation Flow: SUCCESS - Enhanced recommendation created!';
+                    resultDiv.className = 'success';
+                    dataDiv.style.display = 'block';
+                    dataDiv.textContent = JSON.stringify({
+                        originalRecommendation: baseRecommendation,
+                        enhancedRecommendation: enhancedRecommendation,
+                        mood: testMood,
+                        timePreference: testTime
+                    }, null, 2);
+                } else {
+                    resultDiv.textContent = '⚠️ Recommendation Flow: PARTIAL - Basic recommendation works, API enhancement failed';
+                    resultDiv.className = 'pending';
+                }
+                
+            } catch (error) {
+                resultDiv.textContent = '❌ Recommendation Flow: ERROR - ' + error.message;
+                resultDiv.className = 'error';
+                console.error('Recommendation flow error:', error);
+            }
+        }
+
+        // Auto-run tests on page load for demonstration
+        window.addEventListener('load', () => {
+            console.log('🚀 API Testing Page Loaded');
+            console.log('Click the test buttons to verify API functionality');
+            
+            // Add some helpful logging
+            console.log('Available test functions:');
+            console.log('- testOMDbAPI()');
+            console.log('- testTVMazeAPI()');
+            console.log('- testQuoteAPI()');
+            console.log('- testFullIntegration()');
+            console.log('- testRecommendationFlow()');
+        });
+    </script>
+</body>
+</html>

@@ -1,12 +1,7 @@
 // WhatShouldIWatch.ai - Main JavaScript File
 
-// Configuration
-const CONFIG = {
-    TMDB_API_KEY: 'YOUR_TMDB_API_KEY_HERE', // Replace with your actual API key
-    TMDB_BASE_URL: 'https://api.themoviedb.org/3',
-    TMDB_IMAGE_BASE_URL: 'https://image.tmdb.org/t/p/w500',
-    FALLBACK_IMAGE: 'https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=No+Image'
-};
+// Configuration will be loaded from config.js
+// CONFIG variable is already available from config.js
 
 // Dynamic Stats Management
 const StatsManager = {

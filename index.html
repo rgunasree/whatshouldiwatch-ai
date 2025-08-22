@@ -349,7 +349,32 @@
     <!-- Configuration -->
     <script src="config.js"></script>
     
+    <!-- API Testing -->
+    <script src="api-test.js"></script>
+    
     <!-- JavaScript -->
     <script src="script.js"></script>
+    
+    <!-- API Testing Interface (for debugging) -->
+    <script>
+        // Add API testing button for development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            document.addEventListener('DOMContentLoaded', () => {
+                const testButton = document.createElement('button');
+                testButton.textContent = '🧪 Test APIs';
+                testButton.className = 'fixed bottom-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg z-50';
+                testButton.onclick = async () => {
+                    console.log('Testing APIs...');
+                    if (typeof runComprehensiveAPITests === 'function') {
+                        const results = await runComprehensiveAPITests();
+                        alert('API tests complete! Check console for results.');
+                    } else {
+                        console.error('API testing function not available');
+                    }
+                };
+                document.body.appendChild(testButton);
+            });
+        }
+    </script>
 </body>
 </html>
