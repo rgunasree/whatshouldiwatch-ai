@@ -2,9 +2,16 @@
 // This file contains API keys and other sensitive configuration
 
 const CONFIG = {
-    // TMDB (The Movie Database) API Configuration
-    // Get your free API key from: https://www.themoviedb.org/settings/api
-    TMDB_API_KEY: 'YOUR_TMDB_API_KEY_HERE', // Replace with your actual API key
+    // OMDb API Configuration (Alternative to TMDB)
+    // Get your free API key from: http://www.omdbapi.com/apikey.aspx
+    OMDB_API_KEY: 'YOUR_OMDB_API_KEY_HERE', // Replace with your actual API key
+    OMDB_BASE_URL: 'https://www.omdbapi.com',
+    
+    // TVMaze API (No key required!)
+    TVMAZE_BASE_URL: 'https://api.tvmaze.com',
+    
+    // TMDB (The Movie Database) - Original option
+    TMDB_API_KEY: 'YOUR_TMDB_API_KEY_HERE',
     TMDB_BASE_URL: 'https://api.themoviedb.org/3',
     TMDB_IMAGE_BASE_URL: 'https://image.tmdb.org/t/p/w500',
     
@@ -62,26 +69,35 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Instructions for setup:
 /*
-TO SET UP REAL MOVIE DATA:
+TO SET UP REAL MOVIE DATA - MULTIPLE OPTIONS:
 
-1. Get TMDB API Key:
-   - Go to https://www.themoviedb.org/
-   - Create a free account
-   - Go to Settings > API
-   - Request an API key (it's free!)
-   - Replace 'YOUR_TMDB_API_KEY_HERE' with your actual key
+🔥 EASIEST: OMDb API (Recommended)
+1. Go to: http://www.omdbapi.com/apikey.aspx
+2. Enter email, select "FREE" plan (1,000 requests/day)
+3. Check email for API key
+4. Replace 'YOUR_OMDB_API_KEY_HERE' with your key
 
-2. Get Google Analytics ID:
-   - Go to https://analytics.google.com/
-   - Create a property for your website
-   - Get your GA4 Measurement ID (starts with G-)
-   - Replace 'GA_MEASUREMENT_ID' in index.html and here
+✅ NO API KEY NEEDED: TVMaze API
+- Works immediately, no registration required!
+- Great for TV shows and series data
+- Unlimited requests
 
-3. Update Site URL:
-   - Replace the SITE_URL with your actual Vercel deployment URL
+🎬 ALTERNATIVE: TMDB API (Original)
+1. Go to: https://www.themoviedb.org/
+2. Create account → Settings → API → Request key
+3. Replace 'YOUR_TMDB_API_KEY_HERE' with your key
 
-With these setup, your site will have:
-- Real movie posters and data
-- Live visitor analytics
-- Dynamic content updates
+📊 ANALYTICS SETUP:
+1. Go to: https://analytics.google.com/
+2. Create property → Get GA4 Measurement ID (G-xxxxxxx)
+3. Replace 'GA_MEASUREMENT_ID' in index.html
+
+🚀 UPDATE SITE URL:
+- Replace SITE_URL with your actual Vercel URL
+
+With any API setup, your site will have:
+✅ Real movie posters and data
+✅ Live visitor analytics  
+✅ Dynamic content updates
+✅ Current ratings and descriptions
 */
