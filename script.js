@@ -1,8 +1,5 @@
 // WhatShouldIWatch.ai - Main JavaScript File
 
-// Configuration will be loaded from config.js
-// CONFIG variable is already available from config.js
-
 // Dynamic Stats Management
 const StatsManager = {
     init() {
@@ -10,20 +7,20 @@ const StatsManager = {
         this.updateRecommendationCount();
         this.startCounterAnimation();
     },
-    
+
     updateVisitorCount() {
         let visitors = localStorage.getItem('siteVisitors') || '2347652';
         visitors = parseInt(visitors) + Math.floor(Math.random() * 3) + 1;
         localStorage.setItem('siteVisitors', visitors.toString());
         document.getElementById('totalRecommendations').textContent = visitors.toLocaleString();
     },
-    
+
     updateRecommendationCount() {
         let recommendations = localStorage.getItem('totalRecommendations') || '0';
         recommendations = parseInt(recommendations) + 1;
         localStorage.setItem('totalRecommendations', recommendations.toString());
     },
-    
+
     startCounterAnimation() {
         setInterval(() => {
             this.updateVisitorCount();
@@ -35,7 +32,7 @@ const StatsManager = {
 const TMDBFreeApi = {
     baseUrl: 'https://api.themoviedb.org/3',
     imageBaseUrl: 'https://image.tmdb.org/t/p/w500',
-    
+
     async searchMovie(title) {
         try {
             // Use TMDB's free search endpoint (no API key needed for basic search)
@@ -51,7 +48,7 @@ const TMDBFreeApi = {
         }
         return null;
     },
-    
+
     async getTrendingMovies() {
         try {
             // Use trending endpoint (sometimes works without key)
@@ -65,7 +62,7 @@ const TMDBFreeApi = {
         }
         return [];
     },
-    
+
     getImageUrl(posterPath) {
         return posterPath ? `${this.imageBaseUrl}${posterPath}` : null;
     }
@@ -81,8 +78,8 @@ const WorkingMovieAPI = {
                     ...show,
                     image: TMDBFreeApi.getImageUrl(tmdbData.poster_path) || show.image,
                     rating: tmdbData.vote_average ? tmdbData.vote_average.toFixed(1) : show.rating,
-                    year: tmdbData.release_date ? new Date(tmdbData.release_date).getFullYear() : 
-                          (tmdbData.first_air_date ? new Date(tmdbData.first_air_date).getFullYear() : show.year),
+                    year: tmdbData.release_date ? new Date(tmdbData.release_date).getFullYear() :
+                        (tmdbData.first_air_date ? new Date(tmdbData.first_air_date).getFullYear() : show.year),
                     description: tmdbData.overview || show.description,
                     genre: tmdbData.genre_ids ? tmdbData.genre_ids.join(', ') : show.genre
                 };
@@ -92,7 +89,7 @@ const WorkingMovieAPI = {
         }
         return show;
     },
-    
+
     async getTrendingRecommendations() {
         const trending = await TMDBFreeApi.getTrendingMovies();
         return trending.slice(0, 10).map(item => ({
@@ -103,14 +100,14 @@ const WorkingMovieAPI = {
             description: item.overview || 'Trending content based on popularity',
             image: TMDBFreeApi.getImageUrl(item.poster_path),
             rating: item.vote_average ? item.vote_average.toFixed(1) : '7.5',
-            year: item.release_date ? new Date(item.release_date).getFullYear() : 
-                  (item.first_air_date ? new Date(item.first_air_date).getFullYear() : '2024'),
+            year: item.release_date ? new Date(item.release_date).getFullYear() :
+                (item.first_air_date ? new Date(item.first_air_date).getFullYear() : '2024'),
             aiReason: `Trending #${trending.indexOf(item) + 1} right now with high audience engagement`,
             watchLink: this.getWatchLink(item.title || item.name),
             trending: true
         }));
     },
-    
+
     getWatchLink(title) {
         const platforms = {
             netflix: 'https://netflix.com/search?q=',
@@ -128,7 +125,7 @@ const TVMazeApi = {
     async searchShow(title) {
         try {
             const response = await fetch(
-                `${CONFIG.TVMAZE_BASE_URL}/search/shows?q=${encodeURIComponent(title)}`
+                `https://api.tvmaze.com/search/shows?q=${encodeURIComponent(title)}`
             );
             const data = await response.json();
             return data[0]?.show || null;
@@ -137,13 +134,13 @@ const TVMazeApi = {
             return null;
         }
     },
-    
+
     async enhanceShowData(show) {
         const tvmazeData = await this.searchShow(show.title);
         if (tvmazeData) {
             return {
                 ...show,
-                image: tvmazeData.image?.medium || CONFIG.FALLBACK_IMAGE,
+                image: tvmazeData.image?.medium || 'https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=No+Image',
                 rating: tvmazeData.rating?.average ? tvmazeData.rating.average.toFixed(1) : show.rating,
                 year: tvmazeData.premiered ? new Date(tvmazeData.premiered).getFullYear() : show.year,
                 description: tvmazeData.summary ? tvmazeData.summary.replace(/<[^>]*>/g, '') : show.description,
@@ -161,14 +158,17 @@ const TVMazeApi = {
 // TMDB API Functions (Original - kept as fallback)
 const TMDBApi = {
     async searchMovie(title) {
-        if (CONFIG.TMDB_API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
+        // CONFIG may not be available, so use fallback values
+        const TMDB_API_KEY = (typeof CONFIG !== 'undefined' && CONFIG.TMDB_API_KEY) ? CONFIG.TMDB_API_KEY : 'YOUR_TMDB_API_KEY_HERE';
+        if (TMDB_API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
             console.warn('TMDB API key not configured, using fallback data');
             return null;
         }
-        
+
         try {
+            const TMDB_BASE_URL = (typeof CONFIG !== 'undefined' && CONFIG.TMDB_BASE_URL) ? CONFIG.TMDB_BASE_URL : 'https://api.themoviedb.org/3';
             const response = await fetch(
-                `${CONFIG.TMDB_BASE_URL}/search/multi?api_key=${CONFIG.TMDB_API_KEY}&query=${encodeURIComponent(title)}`
+                `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(title)}`
             );
             const data = await response.json();
             return data.results[0] || null;
@@ -177,11 +177,13 @@ const TMDBApi = {
             return null;
         }
     },
-    
+
     getImageUrl(posterPath) {
-        return posterPath ? `${CONFIG.TMDB_IMAGE_BASE_URL}${posterPath}` : CONFIG.FALLBACK_IMAGE;
+        const TMDB_IMAGE_BASE_URL = (typeof CONFIG !== 'undefined' && CONFIG.TMDB_IMAGE_BASE_URL) ? CONFIG.TMDB_IMAGE_BASE_URL : 'https://image.tmdb.org/t/p/w500';
+        const FALLBACK_IMAGE = (typeof CONFIG !== 'undefined' && CONFIG.FALLBACK_IMAGE) ? CONFIG.FALLBACK_IMAGE : 'https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=No+Image';
+        return posterPath ? `${TMDB_IMAGE_BASE_URL}${posterPath}` : FALLBACK_IMAGE;
     },
-    
+
     async enhanceShowData(show) {
         const tmdbData = await this.searchMovie(show.title);
         if (tmdbData) {
@@ -207,7 +209,7 @@ const MovieAPI = {
         } catch (error) {
             console.warn('WorkingMovieAPI failed:', error);
         }
-        
+
         // Try TVMaze for TV shows
         if (show.type === 'TV Series' || show.type === 'TV Episode') {
             try {
@@ -217,11 +219,11 @@ const MovieAPI = {
                 console.warn('TVMaze API failed:', error);
             }
         }
-        
+
         // Return original show if all APIs fail
         return show;
     },
-    
+
     // Add trending recommendations to any mood/time combination
     async addTrendingToRecommendations(baseRecommendations) {
         try {
@@ -653,7 +655,7 @@ function animateCounter(element, target, duration = 2000) {
     const start = parseInt(element.textContent.replace(/,/g, '')) || 0;
     const increment = (target - start) / (duration / 16);
     let current = start;
-    
+
     const timer = setInterval(() => {
         current += increment;
         if (current >= target) {
@@ -669,12 +671,12 @@ function initializeCounters() {
     const recommendationsCounter = document.getElementById('totalRecommendations');
     const baseCount = 2347652;
     const randomIncrement = Math.floor(Math.random() * 100) + 1;
-    
+
     // Animate to a slightly higher number to show "live" updates
     setTimeout(() => {
         animateCounter(recommendationsCounter, baseCount + randomIncrement, 1500);
     }, 500);
-    
+
     // Update counter every 30 seconds
     setInterval(() => {
         const currentCount = parseInt(recommendationsCounter.textContent.replace(/,/g, ''));
@@ -687,12 +689,12 @@ function initializeCounters() {
 function initializeMobileMenu() {
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const mobileMenu = document.querySelector('.mobile-menu');
-    
+
     mobileMenuBtn.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
         mobileMenu.classList.toggle('show');
     });
-    
+
     // Close mobile menu when clicking on a link
     mobileMenu.addEventListener('click', (e) => {
         if (e.target.tagName === 'A') {
@@ -722,7 +724,7 @@ function initializeSmoothScrolling() {
 function initializeMoodSelection() {
     const moodButtons = document.querySelectorAll('.mood-btn');
     const timeSelection = document.getElementById('timeSelection');
-    
+
     moodButtons.forEach(button => {
         button.addEventListener('click', () => {
             // Remove active state from all mood buttons
@@ -730,13 +732,13 @@ function initializeMoodSelection() {
                 btn.classList.remove('border-purple-400', 'bg-white/30');
                 btn.classList.add('border-white/20');
             });
-            
+
             // Add active state to clicked button
             button.classList.remove('border-white/20');
             button.classList.add('border-purple-400', 'bg-white/30');
-            
+
             selectedMood = button.dataset.mood;
-            
+
             // Show time selection with animation
             timeSelection.classList.remove('hidden');
             timeSelection.style.opacity = '0';
@@ -744,12 +746,12 @@ function initializeMoodSelection() {
                 timeSelection.style.opacity = '1';
                 timeSelection.style.transition = 'opacity 0.5s ease';
             }, 100);
-            
+
             // Scroll to time selection
             setTimeout(() => {
-                timeSelection.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
+                timeSelection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
                 });
             }, 200);
         });
@@ -759,7 +761,7 @@ function initializeMoodSelection() {
 // Time selection functionality
 function initializeTimeSelection() {
     const timeButtons = document.querySelectorAll('.time-btn');
-    
+
     timeButtons.forEach(button => {
         button.addEventListener('click', () => {
             // Remove active state from all time buttons
@@ -767,13 +769,13 @@ function initializeTimeSelection() {
                 btn.classList.remove('border-purple-400', 'bg-white/30');
                 btn.classList.add('border-white/20');
             });
-            
+
             // Add active state to clicked button
             button.classList.remove('border-white/20');
             button.classList.add('border-purple-400', 'bg-white/30');
-            
+
             selectedTime = button.dataset.time;
-            
+
             // Start AI thinking process
             startAiThinking();
         });
@@ -784,7 +786,7 @@ function initializeTimeSelection() {
 function startAiThinking() {
     const aiThinking = document.getElementById('aiThinking');
     const thinkingText = document.getElementById('thinkingText');
-    
+
     // Show AI thinking section
     aiThinking.classList.remove('hidden');
     aiThinking.style.opacity = '0';
@@ -792,15 +794,15 @@ function startAiThinking() {
         aiThinking.style.opacity = '1';
         aiThinking.style.transition = 'opacity 0.5s ease';
     }, 100);
-    
+
     // Scroll to AI thinking
     setTimeout(() => {
-        aiThinking.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+        aiThinking.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
         });
     }, 200);
-    
+
     // Thinking messages
     const thinkingMessages = [
         "Analyzing your preferences...",
@@ -809,12 +811,12 @@ function startAiThinking() {
         "Almost ready...",
         "Preparing your recommendations..."
     ];
-    
+
     let messageIndex = 0;
     const messageInterval = setInterval(() => {
         thinkingText.textContent = thinkingMessages[messageIndex];
         messageIndex++;
-        
+
         if (messageIndex >= thinkingMessages.length) {
             clearInterval(messageInterval);
             setTimeout(() => {
@@ -827,9 +829,9 @@ function startAiThinking() {
 // Generate recommendations based on mood and time
 function generateRecommendations() {
     if (!selectedMood || !selectedTime) return [];
-    
+
     const categoryShows = showsDatabase[selectedMood]?.[selectedTime] || [];
-    
+
     // Shuffle and take 3 recommendations
     const shuffled = [...categoryShows].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 3);
@@ -840,21 +842,21 @@ async function showRecommendations() {
     const aiThinking = document.getElementById('aiThinking');
     const recommendations = document.getElementById('recommendations');
     const recommendationCards = document.getElementById('recommendationCards');
-    
+
     console.log('🎬 Starting recommendation generation...');
     console.log('Selected mood:', selectedMood, 'Selected time:', selectedTime);
-    
+
     // Hide AI thinking
     aiThinking.style.opacity = '0';
     setTimeout(() => {
         aiThinking.classList.add('hidden');
     }, 300);
-    
+
     try {
         // Generate base recommendations
         let baseRecommendations = generateRecommendations();
         console.log('📋 Base recommendations generated:', baseRecommendations.length);
-        
+
         // If no base recommendations, create fallback
         if (baseRecommendations.length === 0) {
             console.log('⚠️ No base recommendations found, creating fallback');
@@ -873,7 +875,7 @@ async function showRecommendations() {
                 }
             ];
         }
-        
+
         // Add trending content to mix things up
         try {
             baseRecommendations = await MovieAPI.addTrendingToRecommendations(baseRecommendations);
@@ -881,7 +883,7 @@ async function showRecommendations() {
         } catch (error) {
             console.warn('Failed to add trending content:', error);
         }
-        
+
         // Enhance recommendations with live API data
         const enhancedRecommendations = [];
         for (const show of baseRecommendations) {
@@ -894,19 +896,19 @@ async function showRecommendations() {
                 enhancedRecommendations.push(show); // Use original data as fallback
             }
         }
-        
+
         currentRecommendations = enhancedRecommendations;
         console.log('✅ Final recommendations ready:', currentRecommendations.length);
-        
+
         // Clear previous cards
         recommendationCards.innerHTML = '';
-        
+
         // Create recommendation cards with enhanced data
         currentRecommendations.forEach((show, index) => {
             const card = createRecommendationCard(show, index);
             recommendationCards.appendChild(card);
         });
-        
+
         // Show recommendations section
         setTimeout(() => {
             recommendations.classList.remove('hidden');
@@ -914,20 +916,20 @@ async function showRecommendations() {
             setTimeout(() => {
                 recommendations.style.opacity = '1';
                 recommendations.style.transition = 'opacity 0.5s ease';
-                
+
                 // Scroll to recommendations
                 setTimeout(() => {
-                    recommendations.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
+                    recommendations.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }, 200);
             }, 100);
         }, 500);
-        
+
     } catch (error) {
         console.error('❌ Error in showRecommendations:', error);
-        
+
         // Show error message to user
         recommendationCards.innerHTML = `
             <div class="col-span-full text-center p-8">
@@ -938,26 +940,24 @@ async function showRecommendations() {
                 </button>
             </div>
         `;
-        
+
         recommendations.classList.remove('hidden');
     }
 }
 
-// Create recommendation card
-function createRecommendationCard(show, index) {
+function createRecommendationCard(show) {
     const card = document.createElement('div');
     card.className = 'recommendation-card glass-card p-6 rounded-2xl recommendation-reveal';
-    
+
     const platformClass = `platform-${show.platform}`;
-    
+
     card.innerHTML = `
         <div class="relative mb-4">
             <img src="${show.image}" alt="${show.title}" 
                  class="w-full h-64 object-cover rounded-xl shadow-lg">
             <div class="absolute top-3 right-3">
                 <div class="platform-badge ${platformClass}">
-                    <i class="fas fa-play mr-1"></i>
-                    ${show.platform.toUpperCase()}
+                    <i class="fas fa-play mr-1"></i>${show.platform.toUpperCase()}
                 </div>
             </div>
             <div class="absolute bottom-3 left-3">
@@ -993,25 +993,30 @@ function createRecommendationCard(show, index) {
                       text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
                 <i class="fas fa-play mr-2"></i>Watch Now
             </a>
-            <button onclick="saveRecommendation('${show.title}')" 
-                    class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300">
+            <button class="favorite-btn bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold py-2 px-3 rounded-lg transition-all duration-300">
                 <i class="fas fa-heart"></i>
             </button>
         </div>
     `;
-    
+
+    // ✅ Add event listener safely
+    const favoriteBtn = card.querySelector('.favorite-btn');
+    favoriteBtn.addEventListener('click', () => saveRecommendation(show.title));
+
     return card;
 }
 
 // Save recommendation functionality
 function saveRecommendation(title) {
+    console.log('Creating card for:', title);
+
     // Get saved recommendations from localStorage
     let saved = JSON.parse(localStorage.getItem('savedRecommendations') || '[]');
-    
+
     if (!saved.includes(title)) {
         saved.push(title);
         localStorage.setItem('savedRecommendations', JSON.stringify(saved));
-        
+
         // Show feedback
         showNotification(`${title} saved to your list!`, 'success');
     } else {
@@ -1023,27 +1028,27 @@ function saveRecommendation(title) {
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300`;
-    
+
     if (type === 'success') {
         notification.classList.add('bg-green-500', 'text-white');
     } else {
         notification.classList.add('bg-blue-500', 'text-white');
     }
-    
+
     notification.innerHTML = `
         <div class="flex items-center">
             <i class="fas fa-check-circle mr-2"></i>
             ${message}
         </div>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     setTimeout(() => {
         notification.classList.remove('translate-x-full');
     }, 100);
-    
+
     // Remove after 3 seconds
     setTimeout(() => {
         notification.classList.add('translate-x-full');
@@ -1056,24 +1061,24 @@ function showNotification(message, type = 'info') {
 // Share recommendations functionality
 function initializeSharing() {
     const shareBtn = document.getElementById('shareRecommendations');
-    
+
     shareBtn.addEventListener('click', () => {
         if (currentRecommendations.length === 0) return;
-        
+
         const moodEmojis = {
             happy: '😊',
             chill: '😴',
             focused: '🤔',
             emotional: '😢'
         };
-        
+
         const timeLabels = {
             quick: 'Quick Watch',
             movie: 'Movie Night',
             binge: 'Binge Session',
             episode: 'One Episode'
         };
-        
+
         const shareText = `Just got amazing ${timeLabels[selectedTime]} recommendations from WhatShouldIWatch.ai! ${moodEmojis[selectedMood]}
 
 My mood: ${selectedMood.charAt(0).toUpperCase() + selectedMood.slice(1)}
@@ -1084,7 +1089,7 @@ ${currentRecommendations.map((show, i) => `${i + 1}. ${show.title} (${show.platf
 
 Never waste time scrolling again! 🎬
 https://whatshouldiwatch-ai.vercel.app`;
-        
+
         // Try native sharing first, fall back to clipboard
         if (navigator.share) {
             navigator.share({
@@ -1113,28 +1118,28 @@ https://whatshouldiwatch-ai.vercel.app`;
 // Reset and try again functionality
 function initializeTryAgain() {
     const tryAgainBtn = document.getElementById('getNewRecommendations');
-    
+
     tryAgainBtn.addEventListener('click', () => {
         // Reset selections
         selectedMood = null;
         selectedTime = null;
         currentRecommendations = [];
-        
+
         // Reset UI
         document.querySelectorAll('.mood-btn, .time-btn').forEach(btn => {
             btn.classList.remove('border-purple-400', 'bg-white/30');
             btn.classList.add('border-white/20');
         });
-        
+
         // Hide sections
         document.getElementById('timeSelection').classList.add('hidden');
         document.getElementById('aiThinking').classList.add('hidden');
         document.getElementById('recommendations').classList.add('hidden');
-        
+
         // Scroll back to mood selection
-        document.querySelector('.mood-btn').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
+        document.querySelector('.mood-btn').scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
         });
     });
 }
@@ -1150,7 +1155,7 @@ function initializeKeyboardNavigation() {
                 moodButtons[index].click();
             }
         }
-        
+
         // Arrow keys for time selection
         if (selectedMood && !selectedTime) {
             const timeButtons = document.querySelectorAll('.time-btn');
@@ -1159,12 +1164,12 @@ function initializeKeyboardNavigation() {
             if (e.key === 'ArrowRight' || e.key === '3') timeButtons[2]?.click();
             if (e.key === 'ArrowDown' || e.key === '4') timeButtons[3]?.click();
         }
-        
+
         // R to reset
         if (e.key.toLowerCase() === 'r' && currentRecommendations.length > 0) {
             document.getElementById('getNewRecommendations').click();
         }
-        
+
         // S to share
         if (e.key.toLowerCase() === 's' && currentRecommendations.length > 0) {
             document.getElementById('shareRecommendations').click();
@@ -1176,7 +1181,7 @@ function initializeKeyboardNavigation() {
 function trackEvent(action, category = 'engagement', label = '') {
     // This would integrate with Google Analytics
     console.log(`Analytics: ${category} - ${action} - ${label}`);
-    
+
     // Example: gtag('event', action, { 'event_category': category, 'event_label': label });
 }
 
@@ -1186,11 +1191,11 @@ function initializePerformanceMonitoring() {
     window.addEventListener('load', () => {
         const loadTime = performance.now();
         console.log(`Page loaded in ${Math.round(loadTime)}ms`);
-        
+
         // Track to analytics
         trackEvent('page_load_time', 'performance', Math.round(loadTime).toString());
     });
-    
+
     // Track recommendation generation time
     window.trackRecommendationTime = (startTime) => {
         const endTime = performance.now();
@@ -1203,7 +1208,7 @@ function initializePerformanceMonitoring() {
 // Initialize all functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🎬 WhatShouldIWatch.ai loaded successfully!');
-    
+
     initializeCounters();
     initializeMobileMenu();
     initializeSmoothScrolling();
@@ -1213,10 +1218,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTryAgain();
     initializeKeyboardNavigation();
     initializePerformanceMonitoring();
-    
+
     // Track initial page view
     trackEvent('page_view', 'navigation', 'home');
-    
+
     console.log('✅ All systems initialized!');
 });
 
