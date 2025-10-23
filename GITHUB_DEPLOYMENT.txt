@@ -1,0 +1,65 @@
+🚀 GITHUB DEPLOYMENT STEPS
+================================
+
+Your code is ready! Follow these steps:
+
+STEP 1: CREATE GITHUB REPOSITORY
+---------------------------------
+1. Go to https://github.com
+2. Click "+" → "New repository"
+3. Name: whatshouldiwatch-ai
+4. Description: 🎬 AI-powered show recommendations - Never waste time scrolling again!
+5. Make it Public
+6. Don't initialize with README
+7. Click "Create repository"
+
+STEP 2: CONNECT TO GITHUB
+--------------------------
+After creating repository, run these commands in your terminal:
+
+git remote add origin https://github.com/YOURUSERNAME/whatshouldiwatch-ai.git
+git push -u origin main
+
+(Replace YOURUSERNAME with your actual GitHub username)
+
+STEP 3: DEPLOY TO VERCEL
+------------------------
+1. Go to https://vercel.com
+2. Sign up with GitHub
+3. Click "New Project"
+4. Import your GitHub repository
+5. Click "Deploy"
+6. Your site will be live in seconds!
+
+STEP 4: GET YOUR LIVE URL
+-------------------------
+Vercel will give you a URL like:
+https://whatshouldiwatch-ai-yourusername.vercel.app
+
+ALTERNATIVE: DEPLOY TO NETLIFY
+------------------------------
+1. Go to https://netlify.com
+2. Sign up
+3. Click "New site from Git"
+4. Connect GitHub
+5. Select your repository
+6. Click "Deploy"
+
+🎉 YOUR WEBSITE WILL BE LIVE!
+============================
+
+Features included:
+✅ AI-powered recommendations
+✅ Mobile responsive design
+✅ PWA (installable app)
+✅ Social sharing
+✅ Modern animations
+✅ Service Worker caching
+✅ SEO optimized
+
+Ready for monetization with:
+💰 Ad placement areas
+💰 Affiliate links
+💰 Analytics tracking
+
+Projected revenue: $3-8K/month at 100K visitors
