@@ -55,9 +55,18 @@ Visit: [https://whatshouldiwatch-ai.vercel.app](https://whatshouldiwatch-ai.verc
 ### Configuration (optional but recommended)
 
 - Open `config.js` and set:
-  - `OMDB_API_KEY` (free key from http://www.omdbapi.com/apikey.aspx) for richer movie data
   - `SITE_URL` to your deployed URL (used in sharing)
+- Set Vercel env var (Project → Settings → Environment Variables):
+  - `TMDB_API_KEY` = your TMDB key (kept server-side via Vercel Functions)
+  - Optionally, `OMDB_API_KEY` in `config.js` for movie enrichment
 - You can also extend `MOVIE_POSTERS` to ensure great posters for popular titles
+
+### Real‑time recommendations
+
+- The app now uses Vercel Functions:
+  - `GET /api/recommend?mood=happy&time=movie` returns live TMDB results mapped by mood/time
+  - `GET /api/trending` returns weekly trending content
+- Frontend falls back to the curated database if APIs are unreachable.
 
 ### Local Development
 

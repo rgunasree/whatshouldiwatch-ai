@@ -232,13 +232,11 @@ const TMDBApi = {
 const MovieAPI = {
     async enhanceShowData(show) {
         let result = { ...show };
-        // Prefer known poster mapping first
         const mappedPoster = getPosterFromConfig(result.title);
         if (isPlaceholderUrl(result.image) && mappedPoster) {
             result.image = mappedPoster;
         }
 
-        // For Movies: try OMDb first (reliable and free)
         if (result.type === 'Movie') {
             try {
                 const omdb = await OMDbApi.fetchByTitle(result.title);
@@ -254,7 +252,6 @@ const MovieAPI = {
             }
         }
 
-        // Try WorkingMovieAPI next (uses free TMDB read-only endpoints)
         try {
             const workingResult = await WorkingMovieAPI.enhanceShowData(result);
             if (workingResult) result = workingResult;
@@ -262,7 +259,6 @@ const MovieAPI = {
             console.warn('WorkingMovieAPI failed:', error);
         }
 
-        // Try TVMaze for TV content
         if (result.type === 'TV Series' || result.type === 'TV Episode' || result.type === 'Documentary Episode') {
             try {
                 const tvmazeResult = await TVMazeApi.enhanceShowData(result);
@@ -274,19 +270,21 @@ const MovieAPI = {
 
         return result;
     },
-    
-    // Add trending recommendations to any mood/time combination
+
     async addTrendingToRecommendations(baseRecommendations) {
         try {
-            const trendingShows = await WorkingMovieAPI.getTrendingRecommendations();
-            if (trendingShows.length > 0) {
-                // Replace one recommendation with a trending one
-                const randomIndex = Math.floor(Math.random() * baseRecommendations.length);
-                baseRecommendations[randomIndex] = trendingShows[Math.floor(Math.random() * trendingShows.length)];
+            const res = await fetch('/api/trending');
+            if (res.ok) {
+                const data = await res.json();
+                const trendingShows = data.results || [];
+                if (trendingShows.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * baseRecommendations.length);
+                    baseRecommendations[randomIndex] = trendingShows[Math.floor(Math.random() * trendingShows.length)];
+                }
             }
             return baseRecommendations;
         } catch (error) {
-            console.warn('Failed to add trending recommendations:', error);
+            console.warn('Failed to add trending recommendations (server):', error);
             return baseRecommendations;
         }
     }
@@ -904,8 +902,24 @@ async function showRecommendations() {
     setTimeout(() => { aiThinking.classList.add('hidden'); }, 300);
     
     try {
-        // Generate base recommendations
-        let baseRecommendations = generateRecommendations();
+        // Try server-side real-time recommendations first
+        let baseRecommendations = [];
+        try {
+            const res = await fetch(`/api/recommend?mood=${encodeURIComponent(selectedMood)}&time=${encodeURIComponent(selectedTime)}`);
+            if (res.ok) {
+                const data = await res.json();
+                baseRecommendations = Array.isArray(data.results) ? data.results : [];
+                console.log('🟢 Realtime recommendations:', baseRecommendations.length);
+            }
+        } catch (e) {
+            console.warn('Realtime recommend API failed, falling back:', e);
+        }
+        
+        // Fallback to curated set when needed
+        if (baseRecommendations.length === 0) {
+            baseRecommendations = generateRecommendations();
+            console.log('📋 Base recommendations generated (fallback):', baseRecommendations.length);
+        }
         console.log('📋 Base recommendations generated:', baseRecommendations.length);
         
         // Ensure we always have something to show
