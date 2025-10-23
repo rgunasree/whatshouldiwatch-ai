@@ -28,37 +28,43 @@ const StatsManager = {
     }
 };
 
-// TMDB Free API (Working without key for basic search)
+// Small helper to avoid long network stalls
+async function fetchWithTimeout(url, options = {}, timeout = 8000) {
+    return Promise.race([
+        fetch(url, options),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), timeout))
+    ]);
+}
+
+// TMDB Free API (best-effort, optional)
 const TMDBFreeApi = {
     baseUrl: 'https://api.themoviedb.org/3',
     imageBaseUrl: 'https://image.tmdb.org/t/p/w500',
     
     async searchMovie(title) {
         try {
-            // Use TMDB's free search endpoint (no API key needed for basic search)
-            const response = await fetch(
+            const response = await fetchWithTimeout(
                 `${this.baseUrl}/search/multi?query=${encodeURIComponent(title)}`
             );
-            if (response.ok) {
+            if (response && response.ok) {
                 const data = await response.json();
                 return data.results && data.results.length > 0 ? data.results[0] : null;
             }
         } catch (error) {
-            console.warn('TMDB search failed:', error);
+            console.warn('TMDB search failed:', error.message || error);
         }
         return null;
     },
     
     async getTrendingMovies() {
         try {
-            // Use trending endpoint (sometimes works without key)
-            const response = await fetch(`${this.baseUrl}/trending/all/week`);
-            if (response.ok) {
+            const response = await fetchWithTimeout(`${this.baseUrl}/trending/all/week`);
+            if (response && response.ok) {
                 const data = await response.json();
-                return data.results || [];
+                return Array.isArray(data.results) ? data.results.slice(0, 10) : [];
             }
         } catch (error) {
-            console.warn('TMDB trending failed:', error);
+            console.warn('TMDB trending failed:', error.message || error);
         }
         return [];
     },
@@ -895,35 +901,31 @@ async function showRecommendations() {
     
     // Hide AI thinking
     aiThinking.style.opacity = '0';
-    setTimeout(() => {
-        aiThinking.classList.add('hidden');
-    }, 300);
+    setTimeout(() => { aiThinking.classList.add('hidden'); }, 300);
     
     try {
         // Generate base recommendations
         let baseRecommendations = generateRecommendations();
         console.log('📋 Base recommendations generated:', baseRecommendations.length);
         
-        // If no base recommendations, create fallback
+        // Ensure we always have something to show
         if (baseRecommendations.length === 0) {
             console.log('⚠️ No base recommendations found, creating fallback');
-            baseRecommendations = [
-                {
-                    title: "Popular Movie",
-                    type: "Movie",
-                    platform: "netflix",
-                    runtime: "120 min",
-                    description: "A great movie recommendation for your current mood",
-                    image: "https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=Popular+Movie",
-                    rating: "8.5",
-                    year: "2024",
-                    aiReason: `Perfect for your ${selectedMood} mood and ${selectedTime} time preference`,
-                    watchLink: "https://netflix.com"
-                }
-            ];
+            baseRecommendations = [{
+                title: 'Popular Movie',
+                type: 'Movie',
+                platform: 'netflix',
+                runtime: '120 min',
+                description: 'A great movie recommendation for your current mood',
+                image: 'https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=Popular+Movie',
+                rating: '8.5',
+                year: '2024',
+                aiReason: `Perfect for your ${selectedMood} mood and ${selectedTime} time preference`,
+                watchLink: 'https://netflix.com'
+            }];
         }
         
-        // Add trending content to mix things up
+        // Add trending content to mix things up (best-effort)
         try {
             baseRecommendations = await MovieAPI.addTrendingToRecommendations(baseRecommendations);
             console.log('🔥 Added trending recommendations');
@@ -931,29 +933,48 @@ async function showRecommendations() {
             console.warn('Failed to add trending content:', error);
         }
         
-        // Enhance recommendations with live API data
+        // Enhance recommendations with live API data (never block UI)
         const enhancedRecommendations = [];
         for (const show of baseRecommendations) {
             try {
                 console.log('🔄 Enhancing:', show.title);
-                const enhancedShow = await MovieAPI.enhanceShowData(show);
-                enhancedRecommendations.push(enhancedShow);
+                const enhancedShow = await Promise.race([
+                    MovieAPI.enhanceShowData(show),
+                    new Promise((resolve) => setTimeout(() => resolve(show), 6000))
+                ]);
+                enhancedRecommendations.push(enhancedShow || show);
             } catch (error) {
                 console.warn('Failed to enhance show data for:', show.title, error);
-                enhancedRecommendations.push(show); // Use original data as fallback
+                enhancedRecommendations.push(show);
             }
         }
         
-        currentRecommendations = enhancedRecommendations;
+        currentRecommendations = enhancedRecommendations.length ? enhancedRecommendations : baseRecommendations;
         console.log('✅ Final recommendations ready:', currentRecommendations.length);
         
         // Clear previous cards
         recommendationCards.innerHTML = '';
         
-        // Create recommendation cards with enhanced data
+        // Create recommendation cards with enhanced data (guard against bad data)
         currentRecommendations.forEach((show, index) => {
-            const card = createRecommendationCard(show, index);
-            recommendationCards.appendChild(card);
+            try {
+                const safeShow = {
+                    platform: show.platform || 'netflix',
+                    image: show.image || 'https://via.placeholder.com/300x450/8B5CF6/FFFFFF?text=No+Image',
+                    rating: show.rating || '8.0',
+                    year: show.year || '—',
+                    runtime: show.runtime || (show.type?.includes('TV') ? 'TV Series' : '120 min'),
+                    aiReason: show.aiReason || 'Handpicked for your selected mood and time!',
+                    watchLink: show.watchLink || 'https://netflix.com',
+                    title: show.title || 'Recommended Title',
+                    type: show.type || 'Movie',
+                    description: show.description || 'Great pick for you right now.'
+                };
+                const card = createRecommendationCard(safeShow, index);
+                recommendationCards.appendChild(card);
+            } catch (e) {
+                console.warn('Card render failed, using fallback', e);
+            }
         });
         
         // Show recommendations section
@@ -963,13 +984,8 @@ async function showRecommendations() {
             setTimeout(() => {
                 recommendations.style.opacity = '1';
                 recommendations.style.transition = 'opacity 0.5s ease';
-                
-                // Scroll to recommendations
                 setTimeout(() => {
-                    recommendations.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
+                    recommendations.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 200);
             }, 100);
         }, 500);
@@ -977,7 +993,6 @@ async function showRecommendations() {
     } catch (error) {
         console.error('❌ Error in showRecommendations:', error);
         
-        // Show error message to user
         recommendationCards.innerHTML = `
             <div class="col-span-full text-center p-8">
                 <div class="text-red-400 text-xl mb-4">⚠️ Oops! Something went wrong</div>
@@ -987,7 +1002,6 @@ async function showRecommendations() {
                 </button>
             </div>
         `;
-        
         recommendations.classList.remove('hidden');
     }
 }
